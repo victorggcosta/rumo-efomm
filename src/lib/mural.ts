@@ -23,6 +23,7 @@ export type MuralAviso = {
   orgao: MuralOrgao;
   categoria: MuralCategoria;
   linkOficial: string;
+  viaPortal?: boolean;
 };
 
 export type MuralFeed = {
@@ -120,6 +121,7 @@ function sanitizeFeed(value: unknown): MuralFeed | null {
         orgao: aviso.orgao as MuralOrgao,
         categoria: aviso.categoria as MuralCategoria,
         linkOficial: aviso.linkOficial,
+        ...(aviso.viaPortal === true ? { viaPortal: true as const } : {}),
       },
     ];
   });

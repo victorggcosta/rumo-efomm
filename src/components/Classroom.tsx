@@ -95,7 +95,7 @@ export function Classroom({ topicId, onClose }: { topicId: string; onClose: () =
         aria-labelledby="sala-titulo"
         className="h-dvh overflow-y-auto bg-paper"
       >
-        <header className="sticky top-0 z-10 border-b border-line bg-navy text-white">
+        <header className="safe-top sticky top-0 z-10 border-b border-line bg-navy text-white">
           <div className="mx-auto flex max-w-3xl items-start gap-3 px-4 py-4">
             <button
               ref={closeRef}

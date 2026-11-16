@@ -1,5 +1,9 @@
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { promisify } from "node:util";
+import { request as httpRequest } from "node:http";
+import https from "node:https";
 import { dirname } from "node:path";
 import * as cheerio from "cheerio";
 
@@ -12,6 +16,11 @@ const LIVE = [
 ];
 const LIMIT = 15;
 const USER_AGENT = "RumoAEfomm/1.0 (mural oficial; +https://github.com/victorggcosta/rumo-efomm)";
+const PORTAL = {
+  ciaga: "https://www.marinha.mil.br/ciaga/",
+  ciaba: "https://www.marinha.mil.br/ciaba/",
+  provas: "https://www.marinha.mil.br/ciaga/efommadmissao",
+};
 
 const emptyFeed = () => ({ ultimaAtualizacao: new Date().toISOString(), avisos: [] });
 
@@ -33,23 +42,137 @@ async function main() {
       }
     }
     const ranked = rank(found);
-    const avisos = balanceOrgans(ranked).slice(0, LIMIT);
+    const scraped = balanceOrgans(ranked).slice(0, LIMIT);
     console.log(`Encontrados ${ranked.filter((item) => item.orgao === "CIAGA").length} no CIAGA e ${ranked.filter((item) => item.orgao === "CIABA").length} no CIABA.`);
-    if (avisos.length === 0) {
+    const base = scraped.length > 0 ? scraped : (previous?.avisos ?? []);
+    if (base.length === 0) {
       console.log("Nenhum aviso novo. A lista anterior foi mantida.");
       if (!previous) await writeFeed(emptyFeed());
       return;
     }
-    if (previous && sameAvisos(previous.avisos, avisos)) {
-      console.log("Os avisos oficiais não mudaram.");
-      return;
-    }
-    const feed = { ultimaAtualizacao: new Date().toISOString(), avisos };
-    await writeFeed(feed);
-    console.log(`Salvos ${avisos.length} avisos em public/data/avisos-efomm.json`);
+    await publishChecked(base, previous);
   } catch (error) {
     console.log(`Falha ao ler a Marinha (${error instanceof Error ? error.message : "erro"}). A lista anterior foi mantida.`);
+    if (previous?.avisos?.length) {
+      await publishChecked(previous.avisos, previous);
+      return;
+    }
     if (!previous) await writeFeed(emptyFeed());
+  }
+}
+
+async function publishChecked(avisos, previous) {
+  const checked = await verifyLinks(avisos);
+  if (previous && sameAvisos(previous.avisos, checked)) {
+    console.log("Os avisos oficiais não mudaram.");
+    return;
+  }
+  await writeFeed({ ultimaAtualizacao: new Date().toISOString(), avisos: checked });
+  console.log(`Salvos ${checked.length} avisos em public/data/avisos-efomm.json`);
+}
+
+async function verifyLinks(avisos) {
+  const checked = [];
+  for (const item of avisos) {
+    const status = await httpStatus(item.linkOficial);
+    if (status === 404 || status === 410) {
+      const portal = portalFor(item);
+      console.log(`${status} ${item.titulo} -> ${portal}`);
+      checked.push(card({ ...item, linkOficial: portal, viaPortal: true }));
+      continue;
+    }
+    console.log(`${status || "sem confirmação"} ${item.titulo}`);
+    checked.push(card(item));
+  }
+  return checked;
+}
+
+function portalFor(item) {
+  if (item.orgao === "CIABA") return PORTAL.ciaba;
+  if (item.categoria === "Edital" || /prova|edital|processo seletivo/i.test(`${item.titulo} ${item.linkOficial}`)) return PORTAL.provas;
+  return PORTAL.ciaga;
+}
+
+function card(item) {
+  const next = {
+    id: item.id,
+    titulo: item.titulo,
+    dataPublicacao: typeof item.dataPublicacao === "string" ? item.dataPublicacao : "",
+    orgao: item.orgao,
+    categoria: item.categoria,
+    linkOficial: item.linkOficial,
+  };
+  if (item.viaPortal) next.viaPortal = true;
+  return next;
+}
+
+function requestOnce(url, method, insecure) {
+  return new Promise((resolve) => {
+    const target = new URL(url);
+    const transport = target.protocol === "http:" ? httpRequest : https.request;
+    const req = transport(
+      target,
+      {
+        method,
+        timeout: 20_000,
+        rejectUnauthorized: !insecure,
+        headers: { "user-agent": USER_AGENT, accept: "*/*" },
+      },
+      (res) => {
+        res.resume();
+        const location = typeof res.headers.location === "string" ? res.headers.location : "";
+        resolve({ status: res.statusCode ?? 0, location, error: "" });
+      },
+    );
+    req.on("timeout", () => {
+      req.destroy();
+      resolve({ status: 0, location: "", error: "timeout" });
+    });
+    req.on("error", (error) => {
+      resolve({ status: 0, location: "", error: error.code || error.message });
+    });
+    req.end();
+  });
+}
+
+async function followStatus(url, method) {
+  let current = url;
+  for (let hop = 0; hop < 6; hop += 1) {
+    let result = await requestOnce(current, method, false);
+    if (result.error && /CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO/i.test(result.error)) {
+      result = await requestOnce(current, method, true);
+    }
+    if (result.status >= 300 && result.status < 400 && result.location) {
+      current = new URL(result.location, current).href;
+      continue;
+    }
+    return result.status;
+  }
+  return 0;
+}
+
+const execFileAsync = promisify(execFile);
+
+async function httpStatus(url) {
+  const head = await followStatus(url, "HEAD");
+  if (head === 405 || head === 501) {
+    const get = await followStatus(url, "GET");
+    if (get > 0) return get;
+  } else if (head > 0) {
+    return head;
+  }
+  return curlStatus(url);
+}
+
+async function curlStatus(url) {
+  try {
+    const { stdout } = await execFileAsync("curl", ["-skI", "-L", "--max-redirs", "6", "-A", USER_AGENT, "-o", "/dev/null", "-w", "%{http_code}", url], {
+      timeout: 20_000,
+    });
+    const code = Number(stdout.trim());
+    return Number.isInteger(code) ? code : 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -204,7 +327,12 @@ function yearOf(item) {
 }
 
 function sameAvisos(previous, next) {
-  const sign = (list) => list.map((item) => [item.id, item.titulo, item.linkOficial, item.categoria, item.orgao, item.dataPublicacao].join("|")).join("\n");
+  const sign = (list) =>
+    list
+      .map((item) =>
+        [item.id, item.titulo, item.linkOficial, item.categoria, item.orgao, item.dataPublicacao, item.viaPortal ? "portal" : ""].join("|"),
+      )
+      .join("\n");
   return sign(previous) === sign(next);
 }
 

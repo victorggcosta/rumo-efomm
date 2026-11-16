@@ -73,6 +73,29 @@ export async function syncReminders(data: AppData): Promise<void> {
   }
 }
 
+const PERMISSIONS_KEY = "rumo-efomm.permissoes-nativas";
+let permissionsRequested = false;
+
+export async function requestStartupPermissions(): Promise<void> {
+  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android" || permissionsRequested) return;
+  if (localStorage.getItem(PERMISSIONS_KEY) === "1") return;
+  permissionsRequested = true;
+  localStorage.setItem(PERMISSIONS_KEY, "1");
+  try {
+    await LocalNotifications.requestPermissions();
+  } catch {
+    /* o sistema pode recusar sem interromper a abertura */
+  }
+  try {
+    const exact = await LocalNotifications.checkExactNotificationSetting();
+    if (exact.exact_alarm !== "granted") {
+      await LocalNotifications.changeExactNotificationSetting();
+    }
+  } catch {
+    /* alarmes exatos só existem no Android 12 ou mais novo */
+  }
+}
+
 export async function clearReminders(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   try {

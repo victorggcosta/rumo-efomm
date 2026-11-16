@@ -41,7 +41,7 @@ export function Onboarding() {
   return (
     <div id="boas-vindas" className="min-h-dvh bg-paper text-ink">
       {tourOpen ? <WelcomeTour mode="inicio" onFinish={() => setTourOpen(false)} /> : null}
-      <header className="bg-navy px-4 py-6 text-white">
+      <header className="safe-top bg-navy px-4 pb-6 text-white">
         <div className="mx-auto flex max-w-xl items-center gap-3">
           <Emblem className="size-12" />
           <div>

@@ -32,7 +32,7 @@ export function ExamRoom({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-paper text-ink">
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-navy px-4 py-3 text-white">
+      <header className="safe-top sticky top-0 z-10 border-b border-white/10 bg-navy px-4 pb-3 text-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-gold">Modo prova</p>

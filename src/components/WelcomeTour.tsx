@@ -79,7 +79,7 @@ export function WelcomeTour({ mode, onFinish }: { mode: "inicio" | "rever"; onFi
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-paper text-ink" role="dialog" aria-modal="true" aria-labelledby="tour-titulo">
-      <header className="bg-navy px-4 py-5 text-white">
+      <header className="safe-top bg-navy px-4 pb-5 text-white">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Emblem className="size-11" />

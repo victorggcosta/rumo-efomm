@@ -118,6 +118,9 @@ export function MuralView() {
                   <span className="rounded-full bg-navy px-2 py-1 text-white">{item.orgao}</span>
                   <span className="rounded-full bg-paper px-2 py-1 text-navy">{item.categoria}</span>
                   {unread ? <span className="rounded-full bg-gold px-2 py-1 text-navy">NOVO</span> : null}
+                  {item.viaPortal ? (
+                    <span className="rounded-full border border-gold bg-paper px-2 py-1 text-navy">Acessar via Portal Oficial</span>
+                  ) : null}
                 </div>
                 <h3 className="font-serif text-xl leading-snug text-navy">{item.titulo}</h3>
                 {item.dataPublicacao ? <p className="text-sm text-muted">{formatDay(item.dataPublicacao)}</p> : null}

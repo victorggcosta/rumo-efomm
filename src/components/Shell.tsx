@@ -17,6 +17,7 @@ import { dayPlan, dayScore } from "../data/schedule.ts";
 import { formatLongDate } from "../lib/dates.ts";
 import { useDeviceClock } from "../lib/useDeviceClock.ts";
 import { useAppState } from "../state.tsx";
+import { requestStartupPermissions } from "../utils/notifications.ts";
 
 type Tab = "hoje" | "estudar" | "trilha" | "taf" | "oficial" | "perfil";
 
@@ -36,6 +37,10 @@ export function Shell() {
   const now = useDeviceClock();
   const { data, saveError } = useAppState();
   const profile = data.profile;
+
+  useEffect(() => {
+    void requestStartupPermissions();
+  }, []);
 
   useEffect(() => {
     document.title = profile ? `Rumo à EFOMM · ${profile.name}` : "Rumo à EFOMM";
@@ -69,7 +74,7 @@ export function Shell() {
         Ir para o conteúdo
       </a>
 
-      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:border-r lg:border-line lg:bg-navy lg:px-3 lg:py-5 lg:text-white">
+      <aside className="safe-top hidden lg:flex lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:border-r lg:border-line lg:bg-navy lg:px-3 lg:pb-5 lg:text-white">
         <div className="flex items-center gap-3 px-2 py-2">
           <Emblem className="size-12" />
           <p className="font-serif text-xl leading-none">Rumo à EFOMM</p>
@@ -89,8 +94,8 @@ export function Shell() {
       </aside>
 
       <div className="min-w-0">
-        <header className="bg-navy text-white">
-          <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
+        <header className="safe-top bg-navy text-white">
+          <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 pb-4">
             <Emblem className="size-11" />
             <button
               type="button"
@@ -151,8 +156,7 @@ export function Shell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white lg:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white lg:hidden"
         aria-label="Seções"
       >
         <div className="mx-auto grid grid-cols-6">
