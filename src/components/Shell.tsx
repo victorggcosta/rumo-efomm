@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Activity, BookOpen, CalendarDays, Route, UserRound } from "lucide-react";
+import { Activity, BookOpen, CalendarDays, Landmark, Route, UserRound } from "lucide-react";
 import { BodyView } from "./BodyView.tsx";
 import { Classroom } from "./Classroom.tsx";
 import { Countdowns } from "./Countdowns.tsx";
 import { Onboarding } from "./Onboarding.tsx";
+import { MuralView } from "./MuralView.tsx";
 import { ProfileView } from "./ProfileView.tsx";
 import { StudyView } from "./StudyView.tsx";
 import { TodayView } from "./TodayView.tsx";
@@ -16,13 +17,14 @@ import { formatLongDate } from "../lib/dates.ts";
 import { useDeviceClock } from "../lib/useDeviceClock.ts";
 import { useAppState } from "../state.tsx";
 
-type Tab = "hoje" | "estudar" | "trilha" | "taf" | "perfil";
+type Tab = "hoje" | "estudar" | "trilha" | "taf" | "oficial" | "perfil";
 
 const TABS: { id: Tab; label: string; short: string; icon: typeof CalendarDays }[] = [
   { id: "hoje", label: "Hoje", short: "Hoje", icon: CalendarDays },
   { id: "estudar", label: "Estudar agora", short: "Estudar", icon: BookOpen },
   { id: "trilha", label: "Trilha 36 semanas", short: "Trilha", icon: Route },
   { id: "taf", label: "TAF e saúde", short: "TAF", icon: Activity },
+  { id: "oficial", label: "Mural oficial", short: "Oficial", icon: Landmark },
   { id: "perfil", label: "Perfil e configurações", short: "Perfil", icon: UserRound },
 ];
 
@@ -135,6 +137,7 @@ export function Shell() {
           {tab === "estudar" ? <StudyView onOpen={openTopic} /> : null}
           {tab === "trilha" ? <TrailView onOpen={openTopic} /> : null}
           {tab === "taf" ? <BodyView todayIso={now.iso} /> : null}
+          {tab === "oficial" ? <MuralView /> : null}
           {tab === "perfil" ? <ProfileView /> : null}
           <p className="mx-auto mt-10 max-w-xl text-center text-sm leading-relaxed text-muted">
             Tudo fica salvo neste aparelho. Em Perfil você exporta um arquivo para levar ao celular.
@@ -147,7 +150,7 @@ export function Shell() {
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="Seções"
       >
-        <div className="mx-auto grid grid-cols-5">
+        <div className="mx-auto grid grid-cols-6">
           {TABS.map((item) => {
             const selected = tab === item.id;
             const Icon = item.icon;

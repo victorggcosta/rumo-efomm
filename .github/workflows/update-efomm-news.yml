@@ -1,0 +1,40 @@
+name: Atualizar mural oficial
+
+on:
+  schedule:
+    - cron: "0 11,21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Buscar comunicados oficiais
+        run: node scripts/fetch-efomm-news.mjs
+
+      - name: Publicar somente se o mural mudou
+        run: |
+          if git diff --quiet -- public/data/avisos-efomm.json; then
+            echo "Sem alteração no mural."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/avisos-efomm.json
+          git commit -m "Atualiza o mural oficial da EFOMM."
+          git push

@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - public/data/avisos-efomm.json
 
 jobs:
   build:
