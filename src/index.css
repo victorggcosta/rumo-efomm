@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "@fontsource/source-sans-3/latin-400.css";
+@import "@fontsource/source-sans-3/latin-600.css";
+@import "@fontsource/source-sans-3/latin-700.css";
+@import "@fontsource/fraunces/latin-500.css";
+@import "@fontsource/fraunces/latin-600.css";
+
+@theme {
+  --color-navy: #0b1f3a;
+  --color-navy-soft: #16345c;
+  --color-gold: #c6a15b;
+  --color-gold-deep: #7a5b2e;
+  --color-paper: #f4f1ea;
+  --color-ink: #14233a;
+  --color-muted: #4a5968;
+  --color-line: #e4dccb;
+  --color-sea: #1f6b54;
+  --color-sea-soft: #e6f3ed;
+  --color-clay: #8c4a3a;
+  --color-clay-soft: #f8ece7;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Fraunces, Georgia, "Times New Roman", serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-padding-bottom: 6rem;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  button,
+  a {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: #e7d3a1;
+    color: #0b1f3a;
+  }
+}
+
+.card {
+  border-radius: 1rem;
+  border: 1px solid var(--color-line);
+  background: white;
+  padding: 1.25rem;
+  scroll-margin-top: 14rem;
+  scroll-margin-bottom: 6rem;
+}
+
+.field {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+  background: white;
+  padding: 0.65rem 0.85rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.field:focus {
+  border-color: var(--color-gold);
+  outline: none;
+}
+
+.btn {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+}
+
+.btn-primary {
+  background: var(--color-navy);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-navy-soft);
+}
+
+.btn-quiet {
+  background: white;
+  color: var(--color-navy);
+  border: 1px solid var(--color-line);
+}
+
+.day-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.day-grid .area-greeting {
+  grid-area: greeting;
+}
+
+.day-grid .area-pomodoro {
+  grid-area: pomodoro;
+}
+
+.day-grid .area-routine {
+  grid-area: routine;
+}
+
+.day-grid .area-schedule {
+  grid-area: schedule;
+}
+
+.day-grid .area-bus {
+  grid-area: bus;
+}
+
+.day-grid .area-side {
+  display: contents;
+}
+
+.day-morning {
+  grid-template-areas:
+    "greeting"
+    "pomodoro"
+    "bus"
+    "schedule"
+    "routine";
+}
+
+.day-window {
+  grid-template-areas:
+    "greeting"
+    "pomodoro"
+    "schedule"
+    "bus"
+    "routine";
+}
+
+@media (min-width: 64rem) {
+  .card {
+    padding: 1.5rem;
+  }
+
+  .day-morning,
+  .day-window {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+    grid-template-areas:
+      "greeting greeting"
+      "pomodoro pomodoro"
+      "schedule side";
+  }
+
+  .day-grid .area-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    grid-area: side;
+  }
+}

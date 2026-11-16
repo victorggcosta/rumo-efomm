@@ -1,0 +1,19 @@
+{
+  "name": "Rumo à EFOMM",
+  "short_name": "EFOMM",
+  "description": "Rotina, sala de aula, trilha de 36 semanas e TAF.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f1ea",
+  "theme_color": "#0B1F3A",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
