@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { consumeAndroidBack } from "./lib/androidBack.ts";
@@ -9,6 +9,10 @@ import { requestNotificationPermission } from "./utils/notifications.ts";
 
 export default function App() {
   const [exitHint, setExitHint] = useState(false);
+  const lastBackTimeRef = useRef(0);
+  const closeOverlayRef = useRef(consumeAndroidBack);
+  const hintTimerRef = useRef(0);
+  closeOverlayRef.current = consumeAndroidBack;
 
   useEffect(() => {
     void requestNotificationPermission();
@@ -17,26 +21,25 @@ export default function App() {
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-    let armedAt = 0;
-    let timer = 0;
+    let alive = true;
     const pending = CapApp.addListener("backButton", () => {
-      if (consumeAndroidBack()) return;
+      if (closeOverlayRef.current()) return;
       const now = Date.now();
-      if (armedAt !== 0 && now - armedAt < 2500) {
+      if (now - lastBackTimeRef.current < 2500) {
         void CapApp.exitApp();
         return;
       }
-      armedAt = now;
+      lastBackTimeRef.current = now;
       setExitHint(true);
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        armedAt = 0;
-        setExitHint(false);
-      }, 2500);
+      window.clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = window.setTimeout(() => setExitHint(false), 2500);
     });
     return () => {
-      window.clearTimeout(timer);
-      void pending.then((listener) => listener.remove());
+      alive = false;
+      window.clearTimeout(hintTimerRef.current);
+      void pending.then((listener) => {
+        if (!alive) void listener.remove();
+      });
     };
   }, []);
 
@@ -46,9 +49,10 @@ export default function App() {
       {exitHint ? (
         <p
           role="status"
-          className="fixed inset-x-4 bottom-28 z-[90] rounded-2xl bg-navy px-4 py-3 text-center text-sm text-white shadow-lg"
+          className="fixed inset-x-4 z-[90] rounded-2xl bg-navy px-4 py-3 text-center text-sm text-white shadow-lg"
+          style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))" }}
         >
-          Pressione Voltar novamente para sair do Rumo à EFOMM
+          Pressione Voltar novamente para sair do aplicativo
         </p>
       ) : null}
     </AppStateProvider>

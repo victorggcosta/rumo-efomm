@@ -1,4 +1,4 @@
-import { DATA_VERSION, DEFAULT_TARGETS, STORAGE_KEY } from "../profile.ts";
+import { DATA_VERSION, DEFAULT_TARGETS, PREVIOUS_PRESET, STORAGE_KEY } from "../profile.ts";
 import { isIsoDate } from "./dates.ts";
 import { defaultPomodoro, durationFor } from "./pomodoro.ts";
 import type {
@@ -108,10 +108,10 @@ function normalize(parsed: unknown): AppData {
     version: DATA_VERSION,
     profile,
     heightM: profile ? Math.round(profile.heightCm) / 100 : validHeight(parsed.heightM),
-    targets: {
-      escrita: validTarget(targets.escrita) ?? DEFAULT_TARGETS.escrita,
-      taf: validTarget(targets.taf) ?? DEFAULT_TARGETS.taf,
-    },
+    targets: officialPreset(
+      validTarget(targets.escrita) ?? DEFAULT_TARGETS.escrita,
+      validTarget(targets.taf) ?? DEFAULT_TARGETS.taf,
+    ),
     weights: Array.isArray(parsed.weights) ? parsed.weights.flatMap(toWeight) : [],
     workouts: Array.isArray(parsed.workouts) ? parsed.workouts.flatMap(toWorkout) : [],
     dailyChecks: parseChecks(parsed.dailyChecks),
@@ -137,6 +137,13 @@ function validHeight(value: unknown): number {
   return Math.round(value * 100) / 100;
 }
 
+function officialPreset(escrita: string, taf: string): { escrita: string; taf: string } {
+  if (escrita === PREVIOUS_PRESET.escrita && taf === PREVIOUS_PRESET.taf) {
+    return { escrita: DEFAULT_TARGETS.escrita, taf: DEFAULT_TARGETS.taf };
+  }
+  return { escrita, taf };
+}
+
 function parseProfile(value: unknown): UserProfile | null {
   if (!isRecord(value)) return null;
   const name = typeof value.name === "string" ? value.name.trim() : "";
@@ -145,10 +152,11 @@ function parseProfile(value: unknown): UserProfile | null {
   if (!isFiniteNumber(value.age, 12, 80)) return null;
   if (!isFiniteNumber(value.heightCm, 120, 220)) return null;
   if (!isFiniteNumber(value.goalWeightKg, 30, 250)) return null;
-  const escrita = validTarget(value.escrita);
-  const taf = validTarget(value.taf);
+  const rawEscrita = validTarget(value.escrita);
+  const rawTaf = validTarget(value.taf);
   const window = validWindow(value.freeStart, value.freeEnd);
-  if (!escrita || !taf || !window) return null;
+  if (!rawEscrita || !rawTaf || !window) return null;
+  const dates = officialPreset(rawEscrita, rawTaf);
   return {
     name,
     age: Math.round(value.age),
@@ -159,8 +167,8 @@ function parseProfile(value: unknown): UserProfile | null {
     goalWeightKg: Math.round(value.goalWeightKg * 10) / 10,
     freeStart: window.freeStart,
     freeEnd: window.freeEnd,
-    escrita,
-    taf,
+    escrita: dates.escrita,
+    taf: dates.taf,
     weeklyQuestionGoal: isFiniteNumber(value.weeklyQuestionGoal, 10, 400)
       ? Math.round(value.weeklyQuestionGoal)
       : 80,

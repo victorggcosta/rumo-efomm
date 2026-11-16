@@ -1,3 +1,4 @@
+import { DEFAULT_TARGETS } from "../profile.ts";
 import type { AvatarId, Sex, UserProfile } from "../types.ts";
 import { isIsoDate } from "./dates.ts";
 import { parseDecimal } from "./format.ts";
@@ -29,8 +30,8 @@ export function blankDraft(): ProfileDraft {
     heightCm: "",
     weightKg: "",
     goalKg: "",
-    escrita: "",
-    taf: "",
+    escrita: DEFAULT_TARGETS.escrita,
+    taf: DEFAULT_TARGETS.taf,
     freeStart: "15:30",
     freeEnd: "22:00",
     weeklyQuestions: "80",

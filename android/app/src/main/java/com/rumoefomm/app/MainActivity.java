@@ -12,6 +12,8 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+    // O Voltar fica com o BridgeActivity. Sem onBackPressed próprio,
+    // o plugin App entrega o toque e o gesto ao JavaScript.
     private static final int NAVY = Color.parseColor("#0A192F");
 
     @Override

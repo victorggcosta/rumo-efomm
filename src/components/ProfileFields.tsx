@@ -250,6 +250,9 @@ export function RoutineFields({
           />
         </label>
       </div>
+      <p className="text-sm leading-relaxed text-muted">
+        Datas estimadas com base no último calendário oficial da EFOMM. Altere livremente se houver mudança no edital.
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-navy" htmlFor="perfil-inicio">
           Janela livre, início
