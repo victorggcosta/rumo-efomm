@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import { latestWeight } from "../lib/body.ts";
+import { deviceNow } from "../lib/dates.ts";
+import { saveNativeBackup } from "../lib/nativeBackup.ts";
 import { draftFromProfile, parseDraft, type ProfileDraft } from "../lib/profileDraft.ts";
 import { readBackup } from "../lib/storage.ts";
 import { useAppState } from "../state.tsx";
@@ -18,6 +21,8 @@ export function ProfileView() {
   );
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [portabilityNotice, setPortabilityNotice] = useState("");
+  const [portabilityError, setPortabilityError] = useState("");
   const [pending, setPending] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState<0 | 1>(0);
   const [reminderNote, setReminderNote] = useState("");
@@ -44,30 +49,61 @@ export function ProfileView() {
     setNotice("Perfil salvo neste aparelho.");
   }
 
-  function exportBackup() {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  async function exportBackup() {
+    const json = JSON.stringify(data, null, 2);
+    const fileName = `backup-rumo-efomm-${deviceNow().iso}.json`;
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await saveNativeBackup(json, fileName);
+        setPortabilityError("");
+        setPortabilityNotice("Backup salvo na pasta Documentos do aparelho!");
+      } catch {
+        setPortabilityNotice("");
+        setPortabilityError("Não consegui salvar o backup na pasta Documentos deste aparelho.");
+      }
+      return;
+    }
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "rumo-efomm-backup.json";
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
-    setNotice("Backup baixado. O arquivo leva perfil, peso, questões, caderno de erros, revisões, patente, lembretes e notas.");
-    setError("");
+    setPortabilityError("");
+    setPortabilityNotice(
+      "Backup baixado. O arquivo leva perfil, peso, questões, caderno de erros, revisões, patente, lembretes e notas.",
+    );
+  }
+
+  function readTextFile(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") resolve(reader.result);
+        else reject(new Error("leitura"));
+      };
+      reader.onerror = () => reject(reader.error ?? new Error("leitura"));
+      reader.readAsText(file);
+    });
   }
 
   async function onFile(file: File | undefined) {
     if (!file) return;
     try {
-      const text = await file.text();
+      const text = await readTextFile(file);
+      const parsed: unknown = JSON.parse(text);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("formato");
+      }
       readBackup(text);
       setPending(text);
-      setNotice("Arquivo lido. Confirme para substituir o que está neste aparelho.");
-      setError("");
+      setPortabilityError("");
+      setPortabilityNotice("Arquivo lido. Confirme para substituir o que está neste aparelho.");
     } catch {
       setPending(null);
-      setError("Não consegui ler esse arquivo. Use um backup exportado por este aplicativo.");
-      setNotice("");
+      setPortabilityNotice("");
+      setPortabilityError("Não consegui ler esse arquivo. Use um backup exportado por este aplicativo.");
     }
   }
 
@@ -94,11 +130,11 @@ export function ProfileView() {
     try {
       replaceData(readBackup(pending));
       setPending(null);
-      setNotice("Backup restaurado neste aparelho.");
-      setError("");
+      setPortabilityError("");
+      setPortabilityNotice("Backup restaurado neste aparelho.");
     } catch {
-      setError("O arquivo não pôde ser restaurado.");
-      setNotice("");
+      setPortabilityNotice("");
+      setPortabilityError("O arquivo não pôde ser restaurado.");
     }
   }
 
@@ -201,7 +237,7 @@ export function ProfileView() {
         </button>
       </section>
 
-      <section className="card" aria-labelledby="dados-titulo">
+      <section className="card relative" aria-labelledby="dados-titulo">
         <h3 id="dados-titulo" className="font-serif text-2xl text-navy">
           Dados e portabilidade
         </h3>
@@ -209,7 +245,7 @@ export function ProfileView() {
           O backup inclui perfil, peso, questões resolvidas, caderno de erros, revisões, patente, lembretes e notas. Tudo fica neste aparelho e abre sem internet.
         </p>
         <div className="mt-4 flex flex-col gap-2">
-          <button type="button" id="exportar-backup" className="btn btn-primary" onClick={exportBackup}>
+          <button type="button" id="exportar-backup" className="btn btn-primary" onClick={() => void exportBackup()}>
             Exportar backup (.json)
           </button>
           <button type="button" id="importar-backup" className="btn btn-quiet" onClick={() => fileRef.current?.click()}>
@@ -217,14 +253,25 @@ export function ProfileView() {
           </button>
           <input
             ref={fileRef}
+            id="arquivo-backup"
             type="file"
-            accept="application/json,.json"
-            className="sr-only"
+            accept=".json,application/json"
+            className="absolute h-px w-px opacity-0"
             onChange={(event) => {
               void onFile(event.target.files?.[0]);
               event.target.value = "";
             }}
           />
+          {portabilityError ? (
+            <p role="alert" className="text-sm text-clay">
+              {portabilityError}
+            </p>
+          ) : null}
+          {portabilityNotice ? (
+            <p role="status" className="text-sm font-semibold text-sea">
+              {portabilityNotice}
+            </p>
+          ) : null}
           {pending ? (
             <button type="button" className="btn btn-primary" onClick={confirmImport}>
               Substituir os dados deste aparelho
@@ -238,7 +285,7 @@ export function ProfileView() {
             <div className="rounded-2xl bg-clay-soft p-4">
               <p className="text-sm leading-relaxed text-clay">
                 Isto apaga o perfil, o peso, as questões, o caderno de erros, as revisões, a patente e as notas deste aparelho. O arquivo de
-                backup que você já baixou não é apagado.
+                backup que você já salvou não é apagado.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button type="button" className="btn bg-clay text-white" onClick={resetAll}>

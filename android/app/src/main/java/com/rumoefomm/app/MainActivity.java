@@ -18,6 +18,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(DocumentsBackupPlugin.class);
         super.onCreate(savedInstanceState);
 
         var window = getWindow();
