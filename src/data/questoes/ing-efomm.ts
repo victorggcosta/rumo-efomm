@@ -1,4 +1,5 @@
-import { assertBank, questao } from "./build.ts";
+import { ANALISES } from "./analises/ing-efomm.ts";
+import { assertBank, exigirAnalise, questao } from "./build.ts";
 
 const WATCH = "During the 0400–0800 watch, visibility began to fall. The officer of the watch called the master and told the lookout to stand by on the bridge. The engine room was asked to stand by the main engine. At 0510 a fishing vessel crossed close ahead, and the officer had to alter course to starboard to keep clear. He later wrote the incident up in the logbook. Before handing over, he reminded the next officer that they must not rely on radar alone when visibility is restricted.";
 
@@ -285,4 +286,5 @@ export const questions = [
   ),
 ];
 
+exigirAnalise("ing-efomm", questions, ANALISES);
 assertBank("ing-efomm", questions);

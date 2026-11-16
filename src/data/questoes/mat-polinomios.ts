@@ -1,4 +1,5 @@
-import { assertBank, questao } from "./build.ts";
+import { ANALISES } from "./analises/mat-polinomios.ts";
+import { assertBank, exigirAnalise, questao } from "./build.ts";
 
 export const questions = [
   questao(
@@ -198,4 +199,5 @@ export const questions = [
   ),
 ];
 
+exigirAnalise("mat-polinomios", questions, ANALISES);
 assertBank("mat-polinomios", questions);

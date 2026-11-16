@@ -1,4 +1,5 @@
-import { assertBank, questao } from "./build.ts";
+import { ANALISES } from "./analises/mat-trig-ciclo.ts";
+import { assertBank, exigirAnalise, questao } from "./build.ts";
 
 export const questions = [
   questao(
@@ -192,4 +193,5 @@ export const questions = [
   ),
 ];
 
+exigirAnalise("mat-trig-ciclo", questions, ANALISES);
 assertBank("mat-trig-ciclo", questions);

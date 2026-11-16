@@ -1,3 +1,4 @@
+import { ANALISES_AULA } from "./analises-ingles-portugues.ts";
 import { RIGOR_STUBS } from "./aulas/stubs.ts";
 import { RIGOR_TOPICS } from "./questoes/registry.ts";
 import { EXTRA_LESSONS } from "./lessons-extra.ts";
@@ -1464,6 +1465,31 @@ const CORE_LESSONS: Record<string, Lesson> = {
     ]),
   },
 };
+
+const AULAS_COM_ANALISE = [
+  "ing-tobe",
+  "ing-present",
+  "ing-past",
+  "ing-preposicoes",
+  "ing-vocabulario",
+  "por-acentuacao",
+  "por-gramaticais",
+  "por-redacao-estrutura",
+] as const;
+
+for (const topicId of AULAS_COM_ANALISE) {
+  const lesson = CORE_LESSONS[topicId];
+  for (const item of lesson.questions) {
+    const analise = ANALISES_AULA[item.id];
+    if (!analise) throw new Error(`${item.id} sem análise completa`);
+    item.analise = analise;
+    item.steps = analise.passos;
+  }
+}
+for (const id of Object.keys(ANALISES_AULA)) {
+  const usada = AULAS_COM_ANALISE.some((topicId) => CORE_LESSONS[topicId].questions.some((item) => item.id === id));
+  if (!usada) throw new Error(`análise de aula órfã: ${id}`);
+}
 
 export const LESSONS: Record<string, Lesson> = { ...CORE_LESSONS, ...EXTRA_LESSONS, ...RIGOR_STUBS };
 

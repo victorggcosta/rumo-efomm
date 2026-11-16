@@ -1,4 +1,5 @@
-import { assertBank, questao } from "./build.ts";
+import { ANALISES } from "./analises/mat-exp.ts";
+import { assertBank, exigirAnalise, questao } from "./build.ts";
 
 export const questions = [
   questao(
@@ -200,4 +201,5 @@ export const questions = [
   ),
 ];
 
+exigirAnalise("mat-exp", questions, ANALISES);
 assertBank("mat-exp", questions);

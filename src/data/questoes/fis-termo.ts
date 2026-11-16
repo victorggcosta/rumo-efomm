@@ -1,4 +1,5 @@
-import { assertBank, questao } from "./build.ts";
+import { ANALISES } from "./analises/fis-termo.ts";
+import { assertBank, exigirAnalise, questao } from "./build.ts";
 
 export const questions = [
   questao(
@@ -195,4 +196,5 @@ export const questions = [
   ),
 ];
 
+exigirAnalise("fis-termo", questions, ANALISES);
 assertBank("fis-termo", questions);
