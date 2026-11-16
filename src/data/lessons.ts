@@ -7,6 +7,18 @@ import type { ChoiceLetter } from "../types.ts";
 export type LessonLevel = "Básico" | "Prova";
 export type QuestionLevel = 1 | 2 | 3 | LessonLevel;
 
+/** Os quatro blocos da análise pós-questão. Todos opcionais nas questões antigas. */
+export type AnaliseQuestao = {
+  /** O que o problema pede, antes de qualquer conta. */
+  intuicao: string;
+  /** Por que esta estratégia, e não outra igualmente possível. */
+  motivacao: string;
+  /** Cada passagem com a regra algébrica ou física nomeada. */
+  passos: string[];
+  /** Segunda leitura: número, dimensão, simetria ou estimativa. */
+  atalho: string;
+};
+
 export type QuizQuestion = {
   id: string;
   level: QuestionLevel;
@@ -17,6 +29,8 @@ export type QuizQuestion = {
   explanation: string;
   /** Resolução comentada, na ordem em que o raciocínio deve andar. */
   steps?: string[];
+  /** Análise completa. Questões antigas podem omitir. */
+  analise?: AnaliseQuestao;
 };
 
 export function levelRank(level: QuestionLevel): 1 | 2 | 3 {

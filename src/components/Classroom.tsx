@@ -7,6 +7,7 @@ import { DIDACTIC_BANKS, QUESTION_BANKS } from "../data/questoes/registry.ts";
 import { findTopic } from "../data/topics.ts";
 import { useAndroidBack } from "../lib/androidBack.ts";
 import { useAppState } from "../state.tsx";
+import { QuestionAnalysis } from "./QuestionAnalysis.tsx";
 import type { SubjectId } from "../types.ts";
 
 const SECTIONS = [
@@ -358,14 +359,7 @@ function QuizCard({
       {revealed ? (
         <div className={`mt-4 rounded-xl px-3 py-3 ${correct ? "bg-sea-soft text-sea" : "bg-clay-soft text-clay"}`} role="status">
           <p className="font-semibold">{correct ? "Acertou." : `Errou. O gabarito é ${question.answer}.`}</p>
-          {question.steps && question.steps.length > 0 ? (
-            <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-ink">
-              {question.steps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          ) : null}
-          <p className="mt-2 text-sm leading-relaxed text-ink">{question.explanation}</p>
+          <QuestionAnalysis question={question} />
           <p className="mt-2 text-sm text-navy">Esta questão entrou no contador de {subjectLabel}.</p>
           {!correct ? (
             <button
@@ -438,6 +432,19 @@ function FlashDeck({ cards }: { cards: { id: string; front: string; back: string
 function ErrorList({ topicId }: { topicId: string }) {
   const { data, setErrorNote } = useAppState();
   const entries = Object.entries(data.errorBook).filter(([, entry]) => entry.topicId === topicId);
+  const [bank, setBank] = useState<QuizQuestion[] | null>(null);
+
+  useEffect(() => {
+    const load = QUESTION_BANKS[topicId];
+    if (!load) return;
+    let cancel = false;
+    load().then((module) => {
+      if (!cancel) setBank(module.questions);
+    });
+    return () => {
+      cancel = true;
+    };
+  }, [topicId]);
 
   return (
     <div className="card">
@@ -448,24 +455,30 @@ function ErrorList({ topicId }: { topicId: string }) {
         </p>
       ) : (
         <ul className="mt-4 space-y-4">
-          {entries.map(([id, entry]) => (
-            <li key={id}>
-              <p className="text-sm font-semibold text-navy">
-                {entry.choice === "branco" ? "Em branco no simulado." : `Você marcou ${entry.choice}`}
-              </p>
-              <label className="mt-2 block text-sm font-semibold text-navy" htmlFor={`erro-${id}`}>
-                Por que errei
-                <textarea
-                  id={`erro-${id}`}
-                  className="field mt-1 min-h-24"
-                  value={entry.note}
-                  maxLength={2000}
-                  placeholder="O passo que eu pulei, a regra que eu troquei."
-                  onChange={(event) => setErrorNote(id, event.target.value)}
-                />
-              </label>
-            </li>
-          ))}
+          {entries.map(([id, entry]) => {
+            const question = bank?.find((item) => item.id === id) ?? lessonFor(topicId)?.questions.find((item) => item.id === id);
+            return (
+              <li key={id} className="rounded-xl border border-line px-3 py-3">
+                {question ? <p className="text-base leading-relaxed text-ink">{question.prompt}</p> : null}
+                <p className="mt-2 text-sm font-semibold text-navy">
+                  {entry.choice === "branco" ? "Em branco no simulado." : `Você marcou ${entry.choice}`}
+                  {question ? ` · O gabarito é ${question.answer}.` : ""}
+                </p>
+                {question ? <QuestionAnalysis question={question} /> : null}
+                <label className="mt-3 block text-sm font-semibold text-navy" htmlFor={`erro-${id}`}>
+                  Por que errei
+                  <textarea
+                    id={`erro-${id}`}
+                    className="field mt-1 min-h-24"
+                    value={entry.note}
+                    maxLength={2000}
+                    placeholder="O passo que eu pulei, a regra que eu troquei."
+                    onChange={(event) => setErrorNote(id, event.target.value)}
+                  />
+                </label>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

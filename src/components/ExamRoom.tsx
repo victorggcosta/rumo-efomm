@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import type { QuizQuestion } from "../data/lessons.ts";
+import { QUESTION_BANKS } from "../data/questoes/registry.ts";
 import { EXAM_SUBJECTS, eliminatedSubjects, passingPoints } from "../lib/exam.ts";
 import { formatClock } from "../lib/format.ts";
 import { useAndroidBack } from "../lib/androidBack.ts";
 import { useAppState } from "../state.tsx";
 import type { ChoiceLetter, ExamSession, ExamSubject } from "../types.ts";
+import { QuestionAnalysis } from "./QuestionAnalysis.tsx";
 
 export function ExamRoom({ onClose }: { onClose: () => void }) {
   const { data, markExam, finishExam } = useAppState();
@@ -172,11 +175,66 @@ function ExamResult({ exam, onClose }: { exam: ExamSession; onClose: () => void 
             ? "Nenhuma questão foi para o caderno de erros."
             : `${wrong} ${wrong === 1 ? "questão errada foi" : "questões erradas foram"} para o caderno de erros, com revisão em 1, 7 e 30 dias.`}
         </p>
+        <ExamReview exam={exam} />
         <button type="button" className="btn btn-primary mt-5 w-full" onClick={onClose}>
           Voltar aos estudos
         </button>
       </main>
     </div>
+  );
+}
+
+function ExamReview({ exam }: { exam: ExamSession }) {
+  const [byTopic, setByTopic] = useState<Record<string, QuizQuestion[]>>({});
+
+  useEffect(() => {
+    const topicIds = [...new Set(exam.questions.map((item) => item.topicId))];
+    let cancel = false;
+    Promise.all(
+      topicIds.map(async (topicId) => {
+        const load = QUESTION_BANKS[topicId];
+        if (!load) return [topicId, []] as const;
+        const module = await load();
+        return [topicId, module.questions] as const;
+      }),
+    ).then((entries) => {
+      if (!cancel) setByTopic(Object.fromEntries(entries));
+    });
+    return () => {
+      cancel = true;
+    };
+  }, [exam]);
+
+  return (
+    <section className="mt-6 space-y-3" aria-label="Análise das questões do simulado">
+      <h3 className="font-serif text-2xl text-navy">Análise depois da prova</h3>
+      <p className="text-sm leading-relaxed text-muted">
+        O gabarito fica oculto enquanto o cronômetro corre. Com a prova entregue, cada questão abre a análise completa.
+      </p>
+      {exam.questions.map((item, index) => {
+        const mark = exam.marks[item.id];
+        const correct = mark === item.answer;
+        const source = byTopic[item.topicId]?.find((question) => question.id === item.id);
+        const question: QuizQuestion = source ?? {
+          id: item.id,
+          level: 2,
+          prompt: item.prompt,
+          choices: item.choices,
+          answer: item.answer,
+          explanation: "A resolução comentada deste item entra com o banco do tópico.",
+        };
+        return (
+          <article key={item.id} className="card">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gold-deep">Questão {index + 1}</p>
+            <p className="mt-2 text-base leading-relaxed text-ink">{item.prompt}</p>
+            <p className={`mt-3 text-sm font-semibold ${correct ? "text-sea" : "text-clay"}`}>
+              {correct ? "Acertou." : `Você marcou ${mark ?? "em branco"}. O gabarito é ${item.answer}.`}
+            </p>
+            <QuestionAnalysis question={question} />
+          </article>
+        );
+      })}
+    </section>
   );
 }
 
