@@ -10,6 +10,7 @@ import { StudyView } from "./StudyView.tsx";
 import { TodayView } from "./TodayView.tsx";
 import { TrailView } from "./TrailView.tsx";
 import { ExamRoom } from "./ExamRoom.tsx";
+import { Emblem } from "./Emblem.tsx";
 import { RankStrip } from "./RankCard.tsx";
 import { UserMark } from "./UserMark.tsx";
 import { dayPlan, dayScore } from "../data/schedule.ts";
@@ -69,12 +70,15 @@ export function Shell() {
       </a>
 
       <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:border-r lg:border-line lg:bg-navy lg:px-3 lg:py-5 lg:text-white">
-        <button type="button" className="flex items-center gap-3 rounded-2xl px-2 py-2 text-left" onClick={() => openTab("perfil")}>
+        <div className="flex items-center gap-3 px-2 py-2">
+          <Emblem className="size-12" />
+          <p className="font-serif text-xl leading-none">Rumo à EFOMM</p>
+        </div>
+        <button type="button" className="mt-4 flex items-center gap-3 rounded-2xl px-2 py-2 text-left" onClick={() => openTab("perfil")}>
           <UserMark profile={profile} className="size-11" />
           <div>
             <p className="font-serif text-xl leading-none">{profile.name}</p>
             <RankStrip xp={data.xp} />
-            <p className="mt-1 text-xs text-white/70">Rumo à EFOMM</p>
           </div>
         </button>
         <nav className="mt-8 flex flex-1 flex-col gap-2" aria-label="Seções">
@@ -87,20 +91,21 @@ export function Shell() {
       <div className="min-w-0">
         <header className="bg-navy text-white">
           <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
+            <Emblem className="size-11" />
             <button
               type="button"
               className="flex min-w-0 flex-1 items-center gap-3 text-left"
               onClick={() => openTab("perfil")}
               aria-label={`Abrir perfil de ${profile.name}`}
             >
-              <UserMark profile={profile} className="size-11" />
-              <span className="min-w-0">
+              <span className="min-w-0 flex-1">
                 <h1 className="font-serif text-2xl leading-none">Rumo à EFOMM</h1>
                 <span className="mt-1 block truncate text-sm text-white/75">
                   {profile.name} · {formatLongDate(now.iso, true)}
                 </span>
                 <RankStrip xp={data.xp} />
               </span>
+              <UserMark profile={profile} className="size-10" />
             </button>
           </div>
           <div className="mx-auto max-w-3xl px-4 pb-4">

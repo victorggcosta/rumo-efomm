@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Anchor } from "lucide-react";
 import { blankDraft, parseDraft, validateStep, type ProfileDraft } from "../lib/profileDraft.ts";
 import { useAppState } from "../state.tsx";
+import { Emblem } from "./Emblem.tsx";
 import { GoalFields, IdentityFields, MeasureFields, RoutineFields } from "./ProfileFields.tsx";
 import { WelcomeTour } from "./WelcomeTour.tsx";
 
@@ -43,9 +43,7 @@ export function Onboarding() {
       {tourOpen ? <WelcomeTour mode="inicio" onFinish={() => setTourOpen(false)} /> : null}
       <header className="bg-navy px-4 py-6 text-white">
         <div className="mx-auto flex max-w-xl items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-full border border-gold/70 text-gold">
-            <Anchor className="size-5" aria-hidden="true" />
-          </span>
+          <Emblem className="size-12" />
           <div>
             <p className="font-serif text-2xl leading-none">Rumo à EFOMM</p>
             <p className="mt-1 text-sm text-white/75">Configure o seu painel</p>

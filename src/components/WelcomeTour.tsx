@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Activity, BookOpen, CalendarDays, Compass, Landmark, Route } from "lucide-react";
+import { Emblem } from "./Emblem.tsx";
 
 const SLIDES = [
   {
@@ -80,7 +81,10 @@ export function WelcomeTour({ mode, onFinish }: { mode: "inicio" | "rever"; onFi
     <div className="fixed inset-0 z-50 flex flex-col bg-paper text-ink" role="dialog" aria-modal="true" aria-labelledby="tour-titulo">
       <header className="bg-navy px-4 py-5 text-white">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
-          <p className="font-serif text-2xl leading-none">Rumo à EFOMM</p>
+          <div className="flex items-center gap-3">
+            <Emblem className="size-11" />
+            <p className="font-serif text-2xl leading-none">Rumo à EFOMM</p>
+          </div>
           <button type="button" className="min-h-11 rounded-full px-3 text-sm font-semibold text-white/80" onClick={onFinish}>
             Pular
           </button>
