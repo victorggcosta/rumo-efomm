@@ -5,6 +5,7 @@ import { readBackup } from "../lib/storage.ts";
 import { useAppState } from "../state.tsx";
 import { activateDailyReminders, reminderPlan } from "../utils/notifications.ts";
 import { RankCard } from "./RankCard.tsx";
+import { WelcomeTour } from "./WelcomeTour.tsx";
 import { GoalFields, IdentityFields, MeasureFields, RoutineFields } from "./ProfileFields.tsx";
 
 export function ProfileView() {
@@ -20,6 +21,7 @@ export function ProfileView() {
   const [resetStep, setResetStep] = useState<0 | 1>(0);
   const [reminderNote, setReminderNote] = useState("");
   const [reminderError, setReminderError] = useState("");
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
     if (!data.profile) return;
@@ -167,6 +169,18 @@ export function ProfileView() {
         </div>
       </section>
 
+      <section className="card space-y-3" aria-labelledby="ajuda-titulo">
+        <h3 id="ajuda-titulo" className="font-serif text-2xl text-navy">
+          Ajuda
+        </h3>
+        <p className="text-sm leading-relaxed text-muted">
+          O tutorial explica cada aba. Os dados deste aparelho permanecem como estão.
+        </p>
+        <button type="button" id="rever-tutorial" className="btn btn-primary w-full" onClick={() => setTourOpen(true)}>
+          📖 Tutorial: Como Usar o App
+        </button>
+      </section>
+
       <section className="card" aria-labelledby="dados-titulo">
         <h3 id="dados-titulo" className="font-serif text-2xl text-navy">
           Dados e portabilidade
@@ -218,6 +232,7 @@ export function ProfileView() {
           )}
         </div>
       </section>
+      {tourOpen ? <WelcomeTour mode="rever" onFinish={() => setTourOpen(false)} /> : null}
     </div>
   );
 }

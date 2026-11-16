@@ -14,7 +14,7 @@ import { XP } from "./lib/career.ts";
 import { EXAM_PLAN, scoreExam } from "./lib/exam.ts";
 import { scheduleCycle } from "./lib/reviews.ts";
 import { loadAppData, createSeed, saveAppData } from "./lib/storage.ts";
-import { DEFAULT_TARGETS, EXAMPLE_PROFILE, EXAMPLE_WEIGHT_KG } from "./profile.ts";
+import { DEFAULT_TARGETS } from "./profile.ts";
 import type {
   AppData,
   ChoiceLetter,
@@ -54,7 +54,6 @@ type AppState = {
   setErrorNote: (questionId: string, note: string) => void;
   replaceData: (data: AppData) => void;
   saveProfile: (profile: UserProfile, currentWeightKg: number | null) => void;
-  loadExample: () => void;
   resetAll: () => void;
   beginExam: (mode: ExamMode, questions: ExamQuestion[]) => void;
   markExam: (questionId: string, choice: ChoiceLetter) => void;
@@ -329,26 +328,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             weights,
           };
         });
-      },
-      loadExample() {
-        const today = saoPauloNow().iso;
-        update((current) => ({
-          ...current,
-          profile: EXAMPLE_PROFILE,
-          heightM: EXAMPLE_PROFILE.heightCm / 100,
-          targets: { escrita: EXAMPLE_PROFILE.escrita, taf: EXAMPLE_PROFILE.taf },
-          weights: current.weights.length
-            ? current.weights
-            : [
-                {
-                  id: "peso-inicial",
-                  date: today,
-                  kg: EXAMPLE_WEIGHT_KG,
-                  createdAt: new Date().toISOString(),
-                  initial: true,
-                },
-              ],
-        }));
       },
       resetAll() {
         setData(createSeed());

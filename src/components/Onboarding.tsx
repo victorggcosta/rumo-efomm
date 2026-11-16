@@ -3,11 +3,13 @@ import { Anchor } from "lucide-react";
 import { blankDraft, parseDraft, validateStep, type ProfileDraft } from "../lib/profileDraft.ts";
 import { useAppState } from "../state.tsx";
 import { GoalFields, IdentityFields, MeasureFields, RoutineFields } from "./ProfileFields.tsx";
+import { WelcomeTour } from "./WelcomeTour.tsx";
 
 const STEPS = ["Dados pessoais", "Medidas e saúde", "Rotina e prova"];
 
 export function Onboarding() {
-  const { loadExample, saveProfile } = useAppState();
+  const { saveProfile } = useAppState();
+  const [tourOpen, setTourOpen] = useState(true);
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<ProfileDraft>(blankDraft);
   const [error, setError] = useState("");
@@ -38,6 +40,7 @@ export function Onboarding() {
 
   return (
     <div id="boas-vindas" className="min-h-dvh bg-paper text-ink">
+      {tourOpen ? <WelcomeTour mode="inicio" onFinish={() => setTourOpen(false)} /> : null}
       <header className="bg-navy px-4 py-6 text-white">
         <div className="mx-auto flex max-w-xl items-center gap-3">
           <span className="flex size-11 items-center justify-center rounded-full border border-gold/70 text-gold">
@@ -96,16 +99,6 @@ export function Onboarding() {
               {step === STEPS.length - 1 ? "Entrar no painel" : "Continuar"}
             </button>
           </div>
-        </section>
-        <section className="mt-4 rounded-2xl border border-line bg-white p-4">
-          <h2 className="font-serif text-xl text-navy">Teste rápido</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted">
-            O exemplo usa o nome Lorena, 18 anos, 1,64 m, 98 kg, meta de 75 kg e o TAF feminino. Questões, peso e
-            anotações já salvos neste aparelho permanecem.
-          </p>
-          <button type="button" id="carregar-exemplo" className="btn btn-quiet mt-3 w-full" onClick={loadExample}>
-            Carregar Perfil Exemplo (Lorena)
-          </button>
         </section>
       </main>
     </div>
