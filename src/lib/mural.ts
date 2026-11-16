@@ -1,11 +1,13 @@
 import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
+import { announceOfficialAvisos } from "../utils/notifications.ts";
 
 export const MURAL_RAW_URL =
   "https://raw.githubusercontent.com/victorggcosta/rumo-efomm/main/public/data/avisos-efomm.json";
 
 const CACHE_KEY = "rumo-efomm.mural";
 const READ_KEY = "rumo-efomm.mural-lidos";
+const KNOWN_KEY = "rumo-efomm.mural-ids";
 
 export const MURAL_PORTALS = [
   { id: "ciaga", label: "CIAGA", url: "https://www.marinha.mil.br/ciaga/" },
@@ -62,16 +64,46 @@ export function loadReadIds(): string[] {
   }
 }
 
+function baselineAvisoIds(): Set<string> | null {
+  const stored = readIdList(KNOWN_KEY);
+  if (stored) return new Set(stored);
+  const cache = loadMuralCache();
+  if (!cache) return null;
+  const ids = cache.feed.avisos.map((item) => item.id);
+  saveKnownAvisoIds(ids);
+  return new Set(ids);
+}
+
+function saveKnownAvisoIds(ids: string[]) {
+  localStorage.setItem(KNOWN_KEY, JSON.stringify([...new Set(ids)]));
+}
+
+function readIdList(key: string): string[] | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return null;
+    return parsed.filter((item) => typeof item === "string");
+  } catch {
+    return null;
+  }
+}
+
 export function rememberRead(id: string) {
   const next = [...new Set([...loadReadIds(), id])].slice(-400);
   localStorage.setItem(READ_KEY, JSON.stringify(next));
 }
 
 export async function refreshMural(): Promise<{ cache: MuralCache; remoto: boolean }> {
+  const known = baselineAvisoIds();
   const remote = await fetchFeed(MURAL_RAW_URL);
   if (remote) {
     const cache = { feed: remote, sincronizadoEm: new Date().toISOString() };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    const newcomers = known ? remote.avisos.filter((item) => !known.has(item.id)) : [];
+    const announced = newcomers.length === 0 || (await announceOfficialAvisos(newcomers));
+    if (!known || announced) saveKnownAvisoIds(remote.avisos.map((item) => item.id));
     return { cache, remoto: true };
   }
   const bundled = await fetchFeed(`${import.meta.env.BASE_URL}data/avisos-efomm.json`);

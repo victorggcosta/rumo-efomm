@@ -5,6 +5,7 @@ import { bookFor } from "../data/books.ts";
 import { lessonFor, levelLabel, levelRank, type QuizQuestion } from "../data/lessons.ts";
 import { DIDACTIC_BANKS, QUESTION_BANKS } from "../data/questoes/registry.ts";
 import { findTopic } from "../data/topics.ts";
+import { useAndroidBack } from "../lib/androidBack.ts";
 import { useAppState } from "../state.tsx";
 import type { SubjectId } from "../types.ts";
 
@@ -26,6 +27,7 @@ export function Classroom({ topicId, onClose }: { topicId: string; onClose: () =
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+  useAndroidBack(true, onClose, 60);
 
   useEffect(() => {
     const previous = document.body.style.overflow;

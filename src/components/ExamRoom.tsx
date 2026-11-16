@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { EXAM_SUBJECTS, eliminatedSubjects, passingPoints } from "../lib/exam.ts";
 import { formatClock } from "../lib/format.ts";
+import { useAndroidBack } from "../lib/androidBack.ts";
 import { useAppState } from "../state.tsx";
 import type { ChoiceLetter, ExamSession, ExamSubject } from "../types.ts";
 
@@ -9,6 +10,7 @@ export function ExamRoom({ onClose }: { onClose: () => void }) {
   const exam = data.exam;
   const [index, setIndex] = useState(0);
   const [confirming, setConfirming] = useState(false);
+  useAndroidBack(true, () => (confirming ? setConfirming(false) : onClose()), 80);
   const remaining = useCountdown(exam && exam.finishedAt === null ? exam.endsAt : null);
 
   useEffect(() => {

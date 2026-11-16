@@ -73,27 +73,98 @@ export async function syncReminders(data: AppData): Promise<void> {
   }
 }
 
-const PERMISSIONS_KEY = "rumo-efomm.permissoes-nativas";
-let permissionsRequested = false;
+export type NotificationPermission = "granted" | "denied" | "prompt";
 
-export async function requestStartupPermissions(): Promise<void> {
-  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android" || permissionsRequested) return;
-  if (localStorage.getItem(PERMISSIONS_KEY) === "1") return;
-  permissionsRequested = true;
-  localStorage.setItem(PERMISSIONS_KEY, "1");
+export async function notificationPermission(): Promise<NotificationPermission | "hidden"> {
+  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android") return "hidden";
   try {
-    await LocalNotifications.requestPermissions();
+    const perm = await LocalNotifications.checkPermissions();
+    if (perm.display === "granted") return "granted";
+    if (perm.display === "denied") return "denied";
+    return "prompt";
   } catch {
-    /* o sistema pode recusar sem interromper a abertura */
+    return "hidden";
+  }
+}
+
+export async function requestNotificationPermission(): Promise<NotificationPermission | "hidden"> {
+  const current = await notificationPermission();
+  if (current !== "prompt" && current !== "denied") return current;
+  try {
+    const perm = await LocalNotifications.requestPermissions();
+    if (perm.display === "granted") {
+      await ensureExactAlarms();
+      return "granted";
+    }
+    return perm.display === "denied" ? "denied" : "prompt";
+  } catch {
+    return "denied";
+  }
+}
+
+export async function announceOfficialAvisos(avisos: { id: string; titulo: string }[]): Promise<boolean> {
+  if (!Capacitor.isNativePlatform() || avisos.length === 0) return true;
+  const perm = await notificationPermission();
+  if (perm !== "granted") return false;
+  try {
+    await ensureChannel();
+    const now = Date.now();
+    await LocalNotifications.schedule({
+      notifications: avisos.slice(0, 5).map((item, index) => ({
+        id: 7000 + (hashId(item.id) % 2000),
+        title: "⚓ Nova Atualização Oficial EFOMM!",
+        body: item.titulo,
+        channelId: CHANNEL,
+        schedule: { at: new Date(now + 1000 + index * 1000), allowWhileIdle: true },
+      })),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function sendTestNotification(): Promise<{ ok: boolean; message: string }> {
+  if (!Capacitor.isNativePlatform()) {
+    return { ok: false, message: "O teste de notificação vale no aplicativo Android." };
+  }
+  const perm = await requestNotificationPermission();
+  if (perm !== "granted") {
+    return { ok: false, message: "O Android ainda não autorizou as notificações." };
   }
   try {
+    await ensureChannel();
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: 9001,
+          title: "⚓ Nova Atualização Oficial EFOMM!",
+          body: "Alerta de teste do Rumo à EFOMM.",
+          channelId: CHANNEL,
+          schedule: { at: new Date(Date.now() + 1000), allowWhileIdle: true },
+        },
+      ],
+    });
+    return { ok: true, message: "O alerta de teste chega em cerca de um segundo." };
+  } catch {
+    return { ok: false, message: "Não consegui enviar o alerta de teste neste aparelho." };
+  }
+}
+
+async function ensureExactAlarms(): Promise<void> {
+  if (Capacitor.getPlatform() !== "android") return;
+  try {
     const exact = await LocalNotifications.checkExactNotificationSetting();
-    if (exact.exact_alarm !== "granted") {
-      await LocalNotifications.changeExactNotificationSetting();
-    }
+    if (exact.exact_alarm !== "granted") await LocalNotifications.changeExactNotificationSetting();
   } catch {
     /* alarmes exatos só existem no Android 12 ou mais novo */
   }
+}
+
+function hashId(value: string): number {
+  let hash = 0;
+  for (const char of value) hash = (hash * 33 + char.charCodeAt(0)) >>> 0;
+  return hash;
 }
 
 export async function clearReminders(): Promise<void> {

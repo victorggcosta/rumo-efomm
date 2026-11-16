@@ -17,7 +17,6 @@ import { dayPlan, dayScore } from "../data/schedule.ts";
 import { formatLongDate } from "../lib/dates.ts";
 import { useDeviceClock } from "../lib/useDeviceClock.ts";
 import { useAppState } from "../state.tsx";
-import { requestStartupPermissions } from "../utils/notifications.ts";
 
 type Tab = "hoje" | "estudar" | "trilha" | "taf" | "oficial" | "perfil";
 
@@ -37,10 +36,6 @@ export function Shell() {
   const now = useDeviceClock();
   const { data, saveError } = useAppState();
   const profile = data.profile;
-
-  useEffect(() => {
-    void requestStartupPermissions();
-  }, []);
 
   useEffect(() => {
     document.title = profile ? `Rumo à EFOMM · ${profile.name}` : "Rumo à EFOMM";

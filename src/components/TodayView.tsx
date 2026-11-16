@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { AlertPermissionBanner } from "./AlertPermissionBanner.tsx";
 import { DueReviews } from "./DueReviews.tsx";
 import { PomodoroCard } from "./PomodoroCard.tsx";
 import {
@@ -22,6 +23,7 @@ export function TodayView({ now }: { now: SPNow }) {
 
   return (
     <div className="space-y-6">
+    <AlertPermissionBanner />
     <DueReviews todayIso={now.iso} />
     <div className={`day-grid ${beforeWindow ? "day-morning" : "day-window"}`}>
       <div className="area-pomodoro">

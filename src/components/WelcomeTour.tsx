@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Activity, BookOpen, CalendarDays, Compass, Landmark, Route } from "lucide-react";
+import { useAndroidBack } from "../lib/androidBack.ts";
+import { requestNotificationPermission } from "../utils/notifications.ts";
 import { Emblem } from "./Emblem.tsx";
 
 const SLIDES = [
@@ -68,13 +70,15 @@ export function WelcomeTour({ mode, onFinish }: { mode: "inicio" | "rever"; onFi
   const slide = SLIDES[index];
   const Icon = slide.icon;
   const last = index === SLIDES.length - 1;
+  useAndroidBack(true, onFinish, 50);
 
-  function next() {
-    if (last) {
-      onFinish();
+  async function next() {
+    if (!last) {
+      setIndex(index + 1);
       return;
     }
-    setIndex(index + 1);
+    if (mode === "inicio") await requestNotificationPermission();
+    onFinish();
   }
 
   return (
@@ -119,7 +123,7 @@ export function WelcomeTour({ mode, onFinish }: { mode: "inicio" | "rever"; onFi
             </button>
           ) : null}
           <button type="button" className="btn btn-primary flex-1" onClick={next}>
-            {last ? (mode === "inicio" ? "Começar Configuração" : "Fechar") : "Próximo"}
+            {last ? (mode === "inicio" ? "Concluir e Ativar Alertas" : "Fechar") : "Próximo"}
           </button>
         </div>
       </div>

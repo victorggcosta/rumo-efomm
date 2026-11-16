@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAndroidBack } from "../lib/androidBack.ts";
 import { EXAM_PLAN, drawExam } from "../lib/exam.ts";
 import { useAppState } from "../state.tsx";
 import type { ExamMode } from "../types.ts";
@@ -8,6 +9,7 @@ export function ExamLauncher() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<ExamMode | null>(null);
   const [error, setError] = useState("");
+  useAndroidBack(open, () => setOpen(false), 70);
 
   async function start(mode: ExamMode) {
     setLoading(mode);

@@ -3,7 +3,8 @@ import { latestWeight } from "../lib/body.ts";
 import { draftFromProfile, parseDraft, type ProfileDraft } from "../lib/profileDraft.ts";
 import { readBackup } from "../lib/storage.ts";
 import { useAppState } from "../state.tsx";
-import { activateDailyReminders, reminderPlan } from "../utils/notifications.ts";
+import { activateDailyReminders, reminderPlan, sendTestNotification } from "../utils/notifications.ts";
+import { AlertPermissionBanner } from "./AlertPermissionBanner.tsx";
 import { RankCard } from "./RankCard.tsx";
 import { WelcomeTour } from "./WelcomeTour.tsx";
 import { GoalFields, IdentityFields, MeasureFields, RoutineFields } from "./ProfileFields.tsx";
@@ -157,9 +158,28 @@ export function ProfileView() {
           </p>
         ) : null}
         {reminderNote ? <p className="text-sm text-sea">{reminderNote}</p> : null}
+        <AlertPermissionBanner />
         <div className="flex flex-col gap-2">
           <button type="button" id="ativar-lembretes" className="btn btn-primary" onClick={() => void onReminders()}>
             Ativar Lembretes Diários
+          </button>
+          <button
+            type="button"
+            id="testar-notificacao"
+            className="btn btn-quiet"
+            onClick={() => {
+              void sendTestNotification().then((result) => {
+                if (result.ok) {
+                  setReminderNote(result.message);
+                  setReminderError("");
+                } else {
+                  setReminderError(result.message);
+                  setReminderNote("");
+                }
+              });
+            }}
+          >
+            Testar Notificação Agora
           </button>
           {data.remindersEnabled ? (
             <button type="button" className="btn btn-quiet" onClick={offReminders}>
