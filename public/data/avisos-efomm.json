@@ -1,5 +1,5 @@
 {
-  "ultimaAtualizacao": "2026-11-25T21:51:37.788Z",
+  "ultimaAtualizacao": "2026-11-26T11:54:08.295Z",
   "avisos": [
     {
       "id": "58ce3e760b70",
@@ -10,24 +10,6 @@
       "linkOficial": "https://www.marinha.mil.br/ciaga/node/2516"
     },
     {
-      "id": "395b9c53a46b",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2025-2026",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
-    },
-    {
-      "id": "258f1aca57c0",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2025-2026",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
-    },
-    {
       "id": "ceb976eb4c00",
       "titulo": "CERIMÔNIA DE ENCERRAMENTO DO PERÍODO DE ADAPTAÇÃO DA EFOMM 2025",
       "dataPublicacao": "",
@@ -36,24 +18,8 @@
       "linkOficial": "https://www.marinha.mil.br/ciaga/node/2377"
     },
     {
-      "id": "9d415c923fa1",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2024-2025",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/sites/www.marinha.mil.br.ciaga/files/Arquivos%20CIAGA/1%20DIA%20PROVA%20BRANCA%202024-2025.pdf"
-    },
-    {
-      "id": "1a5cc99311db",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2024-2025",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/sites/www.marinha.mil.br.ciaga/files/Arquivos%20CIAGA/2%20DIA%20PROVA%20BRANCA%202024-2025.pdf"
-    },
-    {
-      "id": "72caa53337cd",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2023-2024",
+      "id": "3baaaf45fe21",
+      "titulo": "PROCESSO SELETIVO 2021 (formato ZIP)",
       "dataPublicacao": "",
       "orgao": "CIAGA",
       "categoria": "Edital",
@@ -61,8 +27,8 @@
       "viaPortal": true
     },
     {
-      "id": "12bedfa51453",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2023-2024",
+      "id": "ce4181bf2a6a",
+      "titulo": "PROCESSO SELETIVO 2020 (formato ZIP)",
       "dataPublicacao": "",
       "orgao": "CIAGA",
       "categoria": "Edital",
@@ -70,64 +36,28 @@
       "viaPortal": true
     },
     {
-      "id": "7a27ba03fbde",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2022-2023",
+      "id": "9740309d00e6",
+      "titulo": "Portaria da Banca de Validação",
       "dataPublicacao": "",
       "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
+      "categoria": "Comunicado",
+      "linkOficial": "https://www.marinha.mil.br/ciaga/sites/www.marinha.mil.br.ciaga/files/Arquivos%20CIAGA/Port47-2015-CIAGA-BVA-EFOMM-e-PREPOM.pdf"
     },
     {
-      "id": "db8cf5612f6a",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2022-2023",
+      "id": "ce917a573366",
+      "titulo": "CERIMÔNIA DE DECLARAÇÃO DE PRATICANTES DA ESCOLA DE FORMAÇÃO DE OFICIAIS DA MARINHA MERCANTE (EFOMM)",
       "dataPublicacao": "",
       "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
+      "categoria": "Comunicado",
+      "linkOficial": "https://www.marinha.mil.br/ciaga/node/2375"
     },
     {
-      "id": "e4ba924d5b88",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2021-2022",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
-    },
-    {
-      "id": "92c8046bda67",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2021-2022",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/efommadmissao",
-      "viaPortal": true
-    },
-    {
-      "id": "7c2b51fb56a8",
-      "titulo": "Prova do 1º dia — Processo Seletivo EFOMM 2020-2021",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/sites/www.marinha.mil.br.ciaga/files/Arquivos%20CIAGA/1%20DIA%20PROVA%20BRANCA%202020-2021.pdf"
-    },
-    {
-      "id": "8b204df2752c",
-      "titulo": "Prova do 2º dia — Processo Seletivo EFOMM 2020-2021",
-      "dataPublicacao": "",
-      "orgao": "CIAGA",
-      "categoria": "Edital",
-      "linkOficial": "https://www.marinha.mil.br/ciaga/sites/www.marinha.mil.br.ciaga/files/Arquivos%20CIAGA/2%20DIA%20PROVA%20BRANCA%202020-2021.pdf"
-    },
-    {
-      "id": "0d046440e301",
-      "titulo": "Cerimônia de Juramento à Bandeira dos Alunos da EFOMM no CIABA",
+      "id": "0faeca930b21",
+      "titulo": "CIABA realiza cerimônia de Abertura do Ano Letivo e Aula Inaugural da EFOMM",
       "dataPublicacao": "",
       "orgao": "CIABA",
       "categoria": "Comunicado",
-      "linkOficial": "https://www.marinha.mil.br/ciaba/node/299"
+      "linkOficial": "https://www.marinha.mil.br/ciaba/node/310"
     }
   ]
 }
